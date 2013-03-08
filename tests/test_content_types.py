@@ -232,9 +232,22 @@ class RestfulTestCase(test.TestCase):
         self.assertValidResponseHeaders(response)
         return response
 
-    def _get_token(self, body):
+    def get_scoped_token(self, tenant_id=None):
         """Convenience method so that we can test authenticated requests."""
-        r = self.public_request(method='POST', path='/v2.0/tokens', body=body)
+        if not tenant_id:
+            tenant_id = self.tenant_bar['id']
+        r = self.public_request(
+            method='POST',
+            path='/v2.0/tokens',
+            body={
+                'auth': {
+                    'passwordCredentials': {
+                        'username': self.user_foo['name'],
+                        'password': self.user_foo['password'],
+                    },
+                    'tenantId': tenant_id,
+                },
+            })
         return self._get_token_id(r)
 
     def get_unscoped_token(self):
@@ -416,6 +429,18 @@ class CoreApiTests(object):
             path='/v2.0/tokens/%(token_id)s' % {
                 'token_id': token,
             },
+            token=token)
+        self.assertValidAuthenticationResponse(r)
+
+    def test_validate_token_service_role(self):
+        self.metadata_foobar = self.identity_api.update_metadata(
+            self.user_foo['id'],
+            self.tenant_service['id'],
+            dict(roles=[self.role_service['id']]))
+
+        token = self.get_scoped_token(tenant_id='service')
+        r = self.admin_request(
+            path='/v2.0/tokens/%s' % token,
             token=token)
         self.assertValidAuthenticationResponse(r)
 
