@@ -1241,8 +1241,8 @@ class TestTrustOptional(test_v3.RestfulTestCase):
         super(TestTrustOptional, self).setUp(*args, **kwargs)
 
     def test_trusts_404(self):
-        self.get('/RH-TRUST/trusts', body={'trust': {}}, expected_status=404)
-        self.post('/RH-TRUST/trusts', body={'trust': {}}, expected_status=404)
+        self.get('/OS-TRUST/trusts', body={'trust': {}}, expected_status=404)
+        self.post('/OS-TRUST/trusts', body={'trust': {}}, expected_status=404)
 
     def test_auth_with_scope_in_trust_403(self):
         auth_data = self.build_authentication_request(
@@ -1265,14 +1265,14 @@ class TestTrustAuth(TestAuthInfo):
 
     def test_create_trust_400(self):
         raise nose.exc.SkipTest('Blocked by bug 1133435')
-        self.post('/RH-TRUST/trusts', body={'trust': {}}, expected_status=400)
+        self.post('/OS-TRUST/trusts', body={'trust': {}}, expected_status=400)
 
     def test_create_unscoped_trust(self):
         ref = self.new_trust_ref(
             trustor_user_id=self.user_id,
             trustee_user_id=self.trustee_user_id)
         del ref['id']
-        r = self.post('/RH-TRUST/trusts', body={'trust': ref})
+        r = self.post('/OS-TRUST/trusts', body={'trust': ref})
         self.assertValidTrustResponse(r, ref)
 
     def test_trust_crud(self):
@@ -1282,48 +1282,48 @@ class TestTrustAuth(TestAuthInfo):
             project_id=self.project_id,
             role_ids=[self.role_id])
         del ref['id']
-        r = self.post('/RH-TRUST/trusts', body={'trust': ref})
+        r = self.post('/OS-TRUST/trusts', body={'trust': ref})
         trust = self.assertValidTrustResponse(r, ref)
 
         r = self.get(
-            '/RH-TRUST/trusts/%(trust_id)s' % {'trust_id': trust['id']},
+            '/OS-TRUST/trusts/%(trust_id)s' % {'trust_id': trust['id']},
             expected_status=200)
         self.assertValidTrustResponse(r, ref)
 
         # validate roles on the trust
         r = self.get(
-            '/RH-TRUST/trusts/%(trust_id)s/roles' % {
+            '/OS-TRUST/trusts/%(trust_id)s/roles' % {
                 'trust_id': trust['id']},
             expected_status=200)
         roles = self.assertValidRoleListResponse(r, self.role)
         self.assertIn(self.role['id'], [x['id'] for x in roles])
         self.head(
-            '/RH-TRUST/trusts/%(trust_id)s/roles/%(role_id)s' % {
+            '/OS-TRUST/trusts/%(trust_id)s/roles/%(role_id)s' % {
                 'trust_id': trust['id'],
                 'role_id': self.role['id']},
             expected_status=204)
         r = self.get(
-            '/RH-TRUST/trusts/%(trust_id)s/roles/%(role_id)s' % {
+            '/OS-TRUST/trusts/%(trust_id)s/roles/%(role_id)s' % {
                 'trust_id': trust['id'],
                 'role_id': self.role['id']},
             expected_status=200)
         self.assertValidRoleResponse(r, self.role)
 
-        r = self.get('/RH-TRUST/trusts', expected_status=200)
+        r = self.get('/OS-TRUST/trusts', expected_status=200)
         self.assertValidTrustListResponse(r, trust)
 
         # trusts are immutable
         self.patch(
-            '/RH-TRUST/trusts/%(trust_id)s' % {'trust_id': trust['id']},
+            '/OS-TRUST/trusts/%(trust_id)s' % {'trust_id': trust['id']},
             body={'trust': ref},
             expected_status=404)
 
         self.delete(
-            '/RH-TRUST/trusts/%(trust_id)s' % {'trust_id': trust['id']},
+            '/OS-TRUST/trusts/%(trust_id)s' % {'trust_id': trust['id']},
             expected_status=204)
 
         self.get(
-            '/RH-TRUST/trusts/%(trust_id)s' % {'trust_id': trust['id']},
+            '/OS-TRUST/trusts/%(trust_id)s' % {'trust_id': trust['id']},
             expected_status=404)
 
     def test_create_trust_trustee_404(self):
@@ -1331,14 +1331,14 @@ class TestTrustAuth(TestAuthInfo):
             trustor_user_id=self.user_id,
             trustee_user_id=uuid.uuid4().hex)
         del ref['id']
-        self.post('/RH-TRUST/trusts', body={'trust': ref}, expected_status=404)
+        self.post('/OS-TRUST/trusts', body={'trust': ref}, expected_status=404)
 
     def test_create_trust_trustor_trustee_backwards(self):
         ref = self.new_trust_ref(
             trustor_user_id=self.trustee_user_id,
             trustee_user_id=self.user_id)
         del ref['id']
-        self.post('/RH-TRUST/trusts', body={'trust': ref}, expected_status=403)
+        self.post('/OS-TRUST/trusts', body={'trust': ref}, expected_status=403)
 
     def test_create_trust_project_404(self):
         ref = self.new_trust_ref(
@@ -1347,7 +1347,7 @@ class TestTrustAuth(TestAuthInfo):
             project_id=uuid.uuid4().hex,
             role_ids=[self.role_id])
         del ref['id']
-        self.post('/RH-TRUST/trusts', body={'trust': ref}, expected_status=404)
+        self.post('/OS-TRUST/trusts', body={'trust': ref}, expected_status=404)
 
     def test_create_trust_role_id_404(self):
         ref = self.new_trust_ref(
@@ -1356,7 +1356,7 @@ class TestTrustAuth(TestAuthInfo):
             project_id=self.project_id,
             role_ids=[uuid.uuid4().hex])
         del ref['id']
-        self.post('/RH-TRUST/trusts', body={'trust': ref}, expected_status=404)
+        self.post('/OS-TRUST/trusts', body={'trust': ref}, expected_status=404)
 
     def test_create_trust_role_name_404(self):
         ref = self.new_trust_ref(
@@ -1365,7 +1365,7 @@ class TestTrustAuth(TestAuthInfo):
             project_id=self.project_id,
             role_names=[uuid.uuid4().hex])
         del ref['id']
-        self.post('/RH-TRUST/trusts', body={'trust': ref}, expected_status=404)
+        self.post('/OS-TRUST/trusts', body={'trust': ref}, expected_status=404)
 
     def test_create_expired_trust(self):
         ref = self.new_trust_ref(
@@ -1375,10 +1375,10 @@ class TestTrustAuth(TestAuthInfo):
             expires=dict(seconds=-1),
             role_ids=[self.role_id])
         del ref['id']
-        r = self.post('/RH-TRUST/trusts', body={'trust': ref})
+        r = self.post('/OS-TRUST/trusts', body={'trust': ref})
         trust = self.assertValidTrustResponse(r, ref)
 
-        self.get('/RH-TRUST/trusts/%(trust_id)s' % {
+        self.get('/OS-TRUST/trusts/%(trust_id)s' % {
             'trust_id': trust['id']},
             expected_status=404)
 
@@ -1398,7 +1398,7 @@ class TestTrustAuth(TestAuthInfo):
             role_ids=[self.role_id])
         del ref['id']
 
-        r = self.post('/RH-TRUST/trusts', body={'trust': ref})
+        r = self.post('/OS-TRUST/trusts', body={'trust': ref})
         trust = self.assertValidTrustResponse(r)
 
         auth_data = self.build_authentication_request(
@@ -1435,7 +1435,7 @@ class TestTrustAuth(TestAuthInfo):
         r = self.post('/auth/tokens', body=auth_data)
         token = r.getheader('X-Subject-Token')
 
-        r = self.post('/RH-TRUST/trusts', body={'trust': ref}, token=token)
+        r = self.post('/OS-TRUST/trusts', body={'trust': ref}, token=token)
         trust = self.assertValidTrustResponse(r)
 
         auth_data = self.build_authentication_request(
@@ -1477,7 +1477,7 @@ class TestTrustAuth(TestAuthInfo):
         r = self.post('/auth/tokens', body=auth_data)
         token = r.getheader('X-Subject-Token')
 
-        r = self.post('/RH-TRUST/trusts', body={'trust': ref}, token=token)
+        r = self.post('/OS-TRUST/trusts', body={'trust': ref}, token=token)
         trust = self.assertValidTrustResponse(r)
 
         auth_data = self.build_authentication_request(
@@ -1518,7 +1518,7 @@ class TestTrustAuth(TestAuthInfo):
         r = self.post('/auth/tokens', body=auth_data)
         token = r.getheader('X-Subject-Token')
 
-        r = self.post('/RH-TRUST/trusts', body={'trust': ref}, token=token)
+        r = self.post('/OS-TRUST/trusts', body={'trust': ref}, token=token)
         trust = self.assertValidTrustResponse(r)
 
         auth_data = self.build_authentication_request(
@@ -1547,7 +1547,7 @@ class TestTrustAuth(TestAuthInfo):
             role_ids=[self.role_id])
         del ref['id']
 
-        r = self.post('/RH-TRUST/trusts', body={'trust': ref})
+        r = self.post('/OS-TRUST/trusts', body={'trust': ref})
         trust = self.assertValidTrustResponse(r)
 
         auth_data = self.build_authentication_request(
@@ -1578,7 +1578,7 @@ class TestTrustAuth(TestAuthInfo):
             role_ids=[self.role_id])
         del ref['id']
 
-        r = self.post('/RH-TRUST/trusts', body={'trust': ref})
+        r = self.post('/OS-TRUST/trusts', body={'trust': ref})
         trust = self.assertValidTrustResponse(r)
 
         auth_data = self.build_authentication_request(
@@ -1607,19 +1607,19 @@ class TestTrustAuth(TestAuthInfo):
             role_ids=[self.role_id])
         del ref['id']
 
-        r = self.post('/RH-TRUST/trusts', body={'trust': ref})
+        r = self.post('/OS-TRUST/trusts', body={'trust': ref})
 
         trust = self.assertValidTrustResponse(r, ref)
 
-        self.delete('/RH-TRUST/trusts/%(trust_id)s' % {
+        self.delete('/OS-TRUST/trusts/%(trust_id)s' % {
             'trust_id': trust['id']},
             expected_status=204)
 
-        self.get('/RH-TRUST/trusts/%(trust_id)s' % {
+        self.get('/OS-TRUST/trusts/%(trust_id)s' % {
             'trust_id': trust['id']},
             expected_status=404)
 
-        self.get('/RH-TRUST/trusts/%(trust_id)s' % {
+        self.get('/OS-TRUST/trusts/%(trust_id)s' % {
             'trust_id': trust['id']},
             expected_status=404)
 
@@ -1640,15 +1640,15 @@ class TestTrustAuth(TestAuthInfo):
         del ref['id']
 
         for i in range(0, 3):
-            r = self.post('/RH-TRUST/trusts', body={'trust': ref})
+            r = self.post('/OS-TRUST/trusts', body={'trust': ref})
             trust = self.assertValidTrustResponse(r, ref)
 
-        r = self.get('/RH-TRUST/trusts?trustor_user_id=%s' %
+        r = self.get('/OS-TRUST/trusts?trustor_user_id=%s' %
                      self.user_id, expected_status=200)
         trusts = r.body['trusts']
         self.assertEqual(len(trusts), 3)
 
-        r = self.get('/RH-TRUST/trusts?trustee_user_id=%s' %
+        r = self.get('/OS-TRUST/trusts?trustee_user_id=%s' %
                      self.user_id, expected_status=200)
         trusts = r.body['trusts']
         self.assertEqual(len(trusts), 0)
@@ -1663,7 +1663,7 @@ class TestTrustAuth(TestAuthInfo):
             role_ids=[self.role_id])
         del ref['id']
 
-        r = self.post('/RH-TRUST/trusts', body={'trust': ref})
+        r = self.post('/OS-TRUST/trusts', body={'trust': ref})
         trust = self.assertValidTrustResponse(r)
 
         auth_data = self.build_authentication_request(
@@ -1675,7 +1675,7 @@ class TestTrustAuth(TestAuthInfo):
         self.assertValidProjectTrustScopedTokenResponse(r, self.user)
         trust_token = r.getheader('X-Subject-Token')
 
-        self.get('/RH-TRUST/trusts?trustor_user_id=%s' %
+        self.get('/OS-TRUST/trusts?trustor_user_id=%s' %
                  self.user_id, expected_status=200,
                  token=trust_token)
 
@@ -1689,6 +1689,6 @@ class TestTrustAuth(TestAuthInfo):
                        auth=auth_data,
                        expected_status=200))
 
-        self.get('/RH-TRUST/trusts?trustor_user_id=%s' %
+        self.get('/OS-TRUST/trusts?trustor_user_id=%s' %
                  self.user_id, expected_status=401,
                  token=trust_token)
