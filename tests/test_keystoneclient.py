@@ -421,10 +421,11 @@ class KeystoneClientTests(object):
                           token=token_id)
 
     def test_token_expiry_maintained(self):
+        timeutils.set_time_override()
         foo_client = self.get_client(self.user_foo)
 
         orig_token = foo_client.service_catalog.catalog['token']
-        time.sleep(.5)
+        timeutils.advance_time_seconds(1)
         reauthenticated_token = foo_client.tokens.authenticate(
             token=foo_client.auth_token)
 
