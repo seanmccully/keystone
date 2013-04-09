@@ -72,13 +72,6 @@ class BaseWSGITest(test.TestCase):
 
 class ApplicationTest(BaseWSGITest):
     def test_response_content_type(self):
-        class FakeApp(wsgi.Application):
-            def index(self, context):
-                return {'a': 'b'}
-
-
-class ApplicationTest(BaseWSGITest):
-    def test_response_content_type(self):
         req = self._make_request()
         resp = req.get_response(self.app)
         self.assertEqual(resp.content_type, 'application/json')
