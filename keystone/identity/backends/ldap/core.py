@@ -82,6 +82,36 @@ class Identity(identity.Driver):
         else:
             raise ValueError(_('Expected dict or list: %s') % type(ref))
 
+    def _validate_domain(self, ref):
+        """Validate that either the default domain or nothing is specified.
+
+        Also removes the domain from the ref so that LDAP doesn't have to
+        persist the attribute.
+
+        """
+        ref = ref.copy()
+        domain_id = ref.pop('domain_id', CONF.identity.default_domain_id)
+        self._validate_domain_id(domain_id)
+        return ref
+
+    def _validate_domain_id(self, domain_id):
+        """Validate that the domain ID specified belongs to the default domain.
+
+        """
+        if domain_id != CONF.identity.default_domain_id:
+            raise exception.DomainNotFound(domain_id=domain_id)
+
+    def _set_default_domain(self, ref):
+        """Overrides any domain reference with the default domain."""
+        if isinstance(ref, dict):
+            ref = ref.copy()
+            ref['domain_id'] = CONF.identity.default_domain_id
+            return ref
+        elif isinstance(ref, list):
+            return [self._set_default_domain(x) for x in ref]
+        else:
+            raise ValueError(_('Expected dict or list: %s') % type(ref))
+
     # Identity interface
     def authenticate(self, user_id=None, tenant_id=None, password=None):
         """Authenticate based on a user, tenant and password.
@@ -152,16 +182,8 @@ class Identity(identity.Driver):
 
     def get_metadata(self, user_id=None, tenant_id=None,
                      domain_id=None, group_id=None):
-
-        def _get_roles_for_just_user_and_project(user_id, tenant_id):
-            self.get_user(user_id)
-            self.get_project(tenant_id)
-            return [a.role_id
-                    for a in self.role.get_role_assignments(tenant_id)
-                    if a.user_id == user_id]
         if domain_id is not None:
-            msg = 'Domain metadata not supported by LDAP'
-            raise exception.NotImplemented(message=msg)
+            raise NotImplemented('Domain metadata not supported by LDAP.')
         if not self.get_project(tenant_id) or not self.get_user(user_id):
             return {}
 
@@ -184,6 +206,12 @@ class Identity(identity.Driver):
         self.get_project(tenant_id)
         return self._set_default_domain(self.project.get_users(tenant_id))
 
+    def get_roles_for_user_and_project(self, user_id, tenant_id):
+        self.get_user(user_id)
+        self.get_project(tenant_id)
+        return [a.role_id for a in self.role.get_role_assignments(tenant_id)
+                if a.user_id == user_id]
+
     def add_role_to_user_and_project(self, user_id, tenant_id, role_id):
         self.get_user(user_id)
         self.get_project(tenant_id)
@@ -195,7 +223,8 @@ class Identity(identity.Driver):
         user = self._validate_domain(user)
         user['name'] = clean.user_name(user['name'])
         user['enabled'] = clean.user_enabled(user.get('enabled', True))
-        return identity.filter_user(self.user.create(user))
+        user_ref = self.user.create(user)
+        return self._set_default_domain(identity.filter_user(user_ref))
 
     def update_user(self, user_id, user):
         user = self._validate_domain(user)
@@ -203,7 +232,7 @@ class Identity(identity.Driver):
             user['name'] = clean.user_name(user['name'])
         if 'enabled' in user:
             user['enabled'] = clean.user_enabled(user['enabled'])
-        return self.user.update(user_id, user)
+        return self._set_default_domain(self.user.update(user_id, user))
 
     def create_project(self, tenant_id, tenant):
         tenant = self._validate_domain(tenant)

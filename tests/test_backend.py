@@ -1684,13 +1684,14 @@ class IdentityTests(object):
             self.assertTrue(x for x in users if x['id'] == test_user['id'])
 
     def test_list_groups(self):
-
-        domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
-        self.identity_api.create_domain(domain['id'], domain)
-        group1 = {'id': uuid.uuid4().hex, 'domain_id': domain['id'],
-                  'name': uuid.uuid4().hex}
-        group2 = {'id': uuid.uuid4().hex, 'domain_id': domain['id'],
-                  'name': uuid.uuid4().hex}
+        group1 = {
+            'id': uuid.uuid4().hex,
+            'domain_id': CONF.identity.default_domain_id,
+            'name': uuid.uuid4().hex}
+        group2 = {
+            'id': uuid.uuid4().hex,
+            'domain_id': CONF.identity.default_domain_id,
+            'name': uuid.uuid4().hex}
         self.identity_man.create_group({}, group1['id'], group1)
         self.identity_man.create_group({}, group2['id'], group2)
         groups = self.identity_api.list_groups()
@@ -1841,11 +1842,15 @@ class IdentityTests(object):
 
     def test_add_user_to_group(self):
 <<<<<<< HEAD
+<<<<<<< HEAD
         domain = self._get_domain_fixture()
 =======
         domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
         self.identity_api.create_domain(domain['id'], domain)
 >>>>>>> Allow backend & client SQL tests on mysql and pg.
+=======
+        domain = self._get_domain_fixture()
+>>>>>>> Read-only default domain for LDAP (bug 1168726)
         new_group = {'id': uuid.uuid4().hex, 'domain_id': domain['id'],
                      'name': uuid.uuid4().hex}
         self.identity_man.create_group({}, new_group['id'], new_group)
@@ -1884,11 +1889,15 @@ class IdentityTests(object):
 
     def test_check_user_in_group(self):
 <<<<<<< HEAD
+<<<<<<< HEAD
         domain = self._get_domain_fixture()
 =======
         domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
         self.identity_api.create_domain(domain['id'], domain)
 >>>>>>> Allow backend & client SQL tests on mysql and pg.
+=======
+        domain = self._get_domain_fixture()
+>>>>>>> Read-only default domain for LDAP (bug 1168726)
         new_group = {'id': uuid.uuid4().hex, 'domain_id': domain['id'],
                      'name': uuid.uuid4().hex}
         self.identity_man.create_group({}, new_group['id'], new_group)
@@ -1902,16 +1911,22 @@ class IdentityTests(object):
 
     def test_check_user_not_in_group(self):
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> Read-only default domain for LDAP (bug 1168726)
         new_group = {
             'id': uuid.uuid4().hex,
             'domain_id': CONF.identity.default_domain_id,
             'name': uuid.uuid4().hex}
+<<<<<<< HEAD
 =======
         domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
         self.identity_api.create_domain(domain['id'], domain)
         new_group = {'id': uuid.uuid4().hex, 'domain_id': domain['id'],
                      'name': uuid.uuid4().hex}
 >>>>>>> Allow backend & client SQL tests on mysql and pg.
+=======
+>>>>>>> Read-only default domain for LDAP (bug 1168726)
         self.identity_man.create_group({}, new_group['id'], new_group)
         self.assertRaises(exception.UserNotFound,
                           self.identity_api.check_user_in_group,
@@ -1920,11 +1935,15 @@ class IdentityTests(object):
 
     def test_list_users_in_group(self):
 <<<<<<< HEAD
+<<<<<<< HEAD
         domain = self._get_domain_fixture()
 =======
         domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
         self.identity_api.create_domain(domain['id'], domain)
 >>>>>>> Allow backend & client SQL tests on mysql and pg.
+=======
+        domain = self._get_domain_fixture()
+>>>>>>> Read-only default domain for LDAP (bug 1168726)
         new_group = {'id': uuid.uuid4().hex, 'domain_id': domain['id'],
                      'name': uuid.uuid4().hex}
         self.identity_man.create_group({}, new_group['id'], new_group)
@@ -1943,11 +1962,15 @@ class IdentityTests(object):
 
     def test_remove_user_from_group(self):
 <<<<<<< HEAD
+<<<<<<< HEAD
         domain = self._get_domain_fixture()
 =======
         domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
         self.identity_api.create_domain(domain['id'], domain)
 >>>>>>> Allow backend & client SQL tests on mysql and pg.
+=======
+        domain = self._get_domain_fixture()
+>>>>>>> Read-only default domain for LDAP (bug 1168726)
         new_group = {'id': uuid.uuid4().hex, 'domain_id': domain['id'],
                      'name': uuid.uuid4().hex}
         self.identity_man.create_group({}, new_group['id'], new_group)
@@ -2102,6 +2125,7 @@ class IdentityTests(object):
 
     def test_user_crud(self):
 <<<<<<< HEAD
+<<<<<<< HEAD
         user = {'domain_id': CONF.identity.default_domain_id,
                 'id': uuid.uuid4().hex,
 =======
@@ -2109,6 +2133,10 @@ class IdentityTests(object):
         self.identity_api.create_domain(domain['id'], domain)
         user = {'domain_id': domain['id'], 'id': uuid.uuid4().hex,
 >>>>>>> Allow backend & client SQL tests on mysql and pg.
+=======
+        user = {'domain_id': CONF.identity.default_domain_id,
+                'id': uuid.uuid4().hex,
+>>>>>>> Read-only default domain for LDAP (bug 1168726)
                 'name': uuid.uuid4().hex, 'password': 'passw0rd'}
         self.identity_api.create_user(user['id'], user)
         user_ref = self.identity_api.get_user(user['id'])
