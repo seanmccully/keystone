@@ -213,3 +213,8 @@ class Driver(object):
 
         """
         raise exception.NotImplemented()
+
+    def flush_expired_tokens(self):
+        """Archive or delete tokens that have expired.
+        """
+        raise exception.NotImplemented()
