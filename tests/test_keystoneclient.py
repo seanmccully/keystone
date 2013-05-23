@@ -966,7 +966,7 @@ class KcMasterTestCase(CompatTestCase, KeystoneClientTests):
         token_id = client.auth_token
         new_password = uuid.uuid4().hex
 
-        # TODO(derekh) : Update to use keystoneclient when available
+        # TODO(derekh): Update to use keystoneclient when available
         class FakeResponse(object):
             def start_fake_response(self, status, headers):
                 self.response_status = int(status.split(' ', 1)[0])
@@ -993,7 +993,7 @@ class KcMasterTestCase(CompatTestCase, KeystoneClientTests):
         token_id = client.auth_token
         new_password = uuid.uuid4().hex
 
-        # TODO(derekh) : Update to use keystoneclient when available
+        # TODO(derekh): Update to use keystoneclient when available
         class FakeResponse(object):
             def start_fake_response(self, status, headers):
                 self.response_status = int(status.split(' ', 1)[0])
@@ -1022,7 +1022,7 @@ class KcMasterTestCase(CompatTestCase, KeystoneClientTests):
         token_id = client.auth_token
         new_password = uuid.uuid4().hex
 
-        # TODO(derekh) : Update to use keystoneclient when available
+        # TODO(derekh): Update to use keystoneclient when available
         class FakeResponse(object):
             def start_fake_response(self, status, headers):
                 self.response_status = int(status.split(' ', 1)[0])
