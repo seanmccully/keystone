@@ -496,14 +496,14 @@ class TestTokenRevoking(test_v3.RestfulTestCase):
             body=self.build_authentication_request(
                 user_id=self.user1['id'],
                 password=self.user1['password']))
-        unscoped_token = r.getheader('X-Subject-Token')
+        unscoped_token = r.headers.get('X-Subject-Token')
 
         r = self.post(
             '/auth/tokens',
             body=self.build_authentication_request(
                 token=unscoped_token,
                 project_id=self.projectA['id']))
-        scoped_token = r.getheader('X-Subject-Token')
+        scoped_token = r.headers.get('X-Subject-Token')
 
         # confirm both tokens are valid
         self.head('/auth/tokens',
