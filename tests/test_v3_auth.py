@@ -747,7 +747,7 @@ class TestTokenRevoking(test_v3.RestfulTestCase):
                 user_id=self.user1['id'],
                 password=self.user1['password'],
                 project_id=self.projectA['id']))
-        user1_token = r.getheader('X-Subject-Token')
+        user1_token = r.headers.get('X-Subject-Token')
 
         r = self.post(
             '/auth/tokens',
@@ -755,7 +755,7 @@ class TestTokenRevoking(test_v3.RestfulTestCase):
                 user_id=self.user3['id'],
                 password=self.user3['password'],
                 project_id=self.projectA['id']))
-        user3_token = r.getheader('X-Subject-Token')
+        user3_token = r.headers.get('X-Subject-Token')
 
         # delete relationships between user1 and projectA from setUp
         self.delete(
