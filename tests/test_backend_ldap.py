@@ -593,7 +593,6 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
               'name': 'Default',
               'enabled': True}])
 
-<<<<<<< HEAD
     def test_authenticate_requires_simple_bind(self):
         user = {
             'id': 'no_meta',
@@ -609,13 +608,7 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
         self.identity_api.user.LDAP_PASSWORD = None
 
         self.assertRaises(AssertionError,
-                          self.identity_api.authenticate,
-                          user_id=user['id'],
-                          tenant_id=self.tenant_baz['id'],
-                          password=None)
 
-=======
->>>>>>> Read-only default domain for LDAP (bug 1168726)
 
 class LDAPIdentityEnabledEmulation(LDAPIdentity):
     def setUp(self):

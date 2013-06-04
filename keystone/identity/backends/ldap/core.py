@@ -20,7 +20,6 @@ import ldap
 
 from keystone import clean
 from keystone.common import ldap as common_ldap
-from keystone.common.ldap import fakeldap
 from keystone.common import logging
 from keystone.common import models
 from keystone.common import utils
@@ -52,35 +51,6 @@ class Identity(identity.Driver):
         self.role = RoleApi(CONF)
         self.group = GroupApi(CONF)
 
-    def _validate_domain(self, ref):
-        """Validate that either the default domain or nothing is specified.
-
-        Also removes the domain from the ref so that LDAP doesn't have to
-        persist the attribute.
-
-        """
-        ref = ref.copy()
-        domain_id = ref.pop('domain_id', CONF.identity.default_domain_id)
-        self._validate_domain_id(domain_id)
-        return ref
-
-    def _validate_domain_id(self, domain_id):
-        """Validate that the domain ID specified belongs to the default domain.
-
-        """
-        if domain_id != CONF.identity.default_domain_id:
-            raise exception.DomainNotFound(domain_id=domain_id)
-
-    def _set_default_domain(self, ref):
-        """Overrides any domain reference with the default domain."""
-        if isinstance(ref, dict):
-            ref = ref.copy()
-            ref['domain_id'] = CONF.identity.default_domain_id
-            return ref
-        elif isinstance(ref, list):
-            return [self._set_default_domain(x) for x in ref]
-        else:
-            raise ValueError(_('Expected dict or list: %s') % type(ref))
 
     def _validate_domain(self, ref):
         """Validate that either the default domain or nothing is specified.
@@ -118,6 +88,8 @@ class Identity(identity.Driver):
         try:
             user_ref = self._get_user(user_id)
         except exception.UserNotFound:
+            raise AssertionError('Invalid user / password')
+        if not user_id or not password:
             raise AssertionError('Invalid user / password')
         try:
             conn = self.user.get_connection(self.user._id_to_dn(user_id),
