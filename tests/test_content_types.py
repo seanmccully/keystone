@@ -18,7 +18,6 @@ import io
 import uuid
 
 from lxml import etree
-import nose.exc
 import webtest
 
 from keystone import test
@@ -496,7 +495,7 @@ class CoreApiTests(object):
         self.assertValidTenantResponse(r)
 
     def test_get_user_roles(self):
-        raise nose.exc.SkipTest('Blocked by bug 933565')
+        self.skipTest('Blocked by bug 933565')
 
         token = self.get_scoped_token()
         r = self.admin_request(
