@@ -16,9 +16,9 @@
 
 import webob.dec
 
-from keystone.common import logging
 from keystone.common import wsgi
 from keystone import config
+from keystone.openstack.common import log as logging
 from keystone.openstack.common import timeutils
 
 
