@@ -349,34 +349,59 @@ class Provider(token.provider.Provider):
     def _get_token_id(self, token_data):
         return uuid.uuid4().hex
 
+    def _user_has_token(self, user_id, tenant_id=None):
+        token_list = self.token_api.driver._list_tokens_for_user(user_id, tenant_id=tenant_id)
+        return token_list
+
+    def _normalize_datestring(self, date_string):
+        return timeutils.normalize_time(timeutils.parse_isotime(date_string))
+
+    def _update_token_data(self, token_data):
+        current_token = self.token_api.driver.\
+                        get_token(token_data['access']['token']['id'])
+
+        token_data['access']['token']['expires'] = current_token['expires']
+
+        token_data['access']['token']['issued_at'] =\
+                self._normalize_datestring(\
+                current_token['token_data']['access']['token']['issued_at'])
+
     def _issue_v2_token(self, **kwargs):
         token_data = self.v2_token_data_helper.get_token_data(**kwargs)
-        token_id = self._get_token_id(token_data)
-        token_data['access']['token']['id'] = token_id
-        try:
-            expiry = token_data['access']['token']['expires']
-            token_ref = kwargs.get('token_ref')
-            if isinstance(expiry, basestring):
-                expiry = timeutils.normalize_time(
-                    timeutils.parse_isotime(expiry))
-            data = dict(key=token_id,
-                        id=token_id,
-                        expires=expiry,
-                        user=token_ref['user'],
-                        tenant=token_ref['tenant'],
-                        metadata=token_ref['metadata'],
-                        token_data=token_data,
-                        bind=token_ref.get('bind'),
-                        trust_id=token_ref['metadata'].get('trust_id'))
-            self.token_api.create_token(token_id, data)
-        except Exception:
-            exc_info = sys.exc_info()
-            # an identical token may have been created already.
-            # if so, return the token_data as it is also identical
+        token_list = self._user_has_token(token_data['access']['user']['id'],
+                        tenant_id=token_data['access']['token']['tenant']['id'])
+        if token_list:
+            token_id = token_list[0]
+            token_data['access']['token']['id'] = token_list[0]
+            self._update_token_data(token_data)
+        else:
+            token_id = self._get_token_id(token_data)
+            token_data['access']['token']['id'] = token_id
+
             try:
-                self.token_api.get_token(token_id)
-            except exception.TokenNotFound:
-                raise exc_info[0], exc_info[1], exc_info[2]
+                expiry = token_data['access']['token']['expires']
+                token_ref = kwargs.get('token_ref')
+                if isinstance(expiry, basestring):
+                    expiry = timeutils.normalize_time(
+                        timeutils.parse_isotime(expiry))
+                data = dict(key=token_id,
+                            id=token_id,
+                            expires=expiry,
+                            user=token_ref['user'],
+                            tenant=token_ref['tenant'],
+                            metadata=token_ref['metadata'],
+                            token_data=token_data,
+                            bind=token_ref.get('bind'),
+                            trust_id=token_ref['metadata'].get('trust_id'))
+                self.token_api.create_token(token_id, data)
+            except Exception:
+                exc_info = sys.exc_info()
+                # an identical token may have been created already.
+                # if so, return the token_data as it is also identical
+                try:
+                    self.token_api.get_token(token_id)
+                except exception.TokenNotFound:
+                    raise exc_info[0], exc_info[1], exc_info[2]
 
         return (token_id, token_data)
 
