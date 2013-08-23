@@ -350,7 +350,7 @@ class Provider(token.provider.Provider):
         return uuid.uuid4().hex
 
     def _user_has_token(self, user_id, tenant_id=None):
-        token_list = self.token_api.driver._list_tokens_for_user(user_id, tenant_id=tenant_id)
+        token_list = self.token_api.driver.list_tokens(user_id, tenant_id=tenant_id)
         return token_list
 
     def _normalize_datestring(self, date_string):
@@ -368,8 +368,12 @@ class Provider(token.provider.Provider):
 
     def _issue_v2_token(self, **kwargs):
         token_data = self.v2_token_data_helper.get_token_data(**kwargs)
-        token_list = self._user_has_token(token_data['access']['user']['id'],
+        if self.token_api.driver.reuse_tokens():
+            token_list = self.(token_data['access']['user']['id'],
                         tenant_id=token_data['access']['token']['tenant']['id'])
+        else:
+            token_list = None
+
         if token_list:
             token_id = token_list[0]
             token_data['access']['token']['id'] = token_list[0]

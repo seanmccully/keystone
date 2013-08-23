@@ -236,3 +236,11 @@ class Driver(object):
         """Archive or delete tokens that have expired.
         """
         raise exception.NotImplemented()
+
+    def reuse_tokens(self):
+        """Possibly not all apis should reissue non-expired 
+            tokens. Default should be false
+
+            :returns: False
+        """
+        return False

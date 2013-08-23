@@ -203,3 +203,6 @@ class Token(sql.Base, token.Driver):
         query.delete(synchronize_session=False)
 
         session.flush()
+
+    def reuse_tokens(self):
+        return True
